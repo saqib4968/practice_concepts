@@ -1,0 +1,137 @@
+class Island {
+    
+    public class Cell {
+        int r;
+        int c;
+
+        public Cell(int row, int col){
+            this.r = row;
+            this.c = col;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(r, c);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if(obj instanceof Cell) {
+                Cell obj1 = (Cell) obj;
+                return this.r == obj1.r && this.c == obj1.c;
+            }
+            return false;
+        }
+    }
+    
+    public int numIslands(char[][] grid) {
+        
+        Set<Cell> partOfIsland = new HashSet<>();
+        Map<Integer, Set<Cell>> islands = new HashMap<>();
+        
+        int m = grid.length;
+        int n = grid[0].length;
+        
+        for(int i=0; i<m; i++){
+            
+            for(int j=0; j<n; j++){
+                if(grid[i][j] == '1'){
+                    Cell cell = new Cell(i,j);
+                    
+                    boolean isAdded = false;
+                    if(checkCellsAvailabilktyInIslands(grid, islands, cell)){
+                        
+                        isAdded = true;
+                    }else {
+                        Set<Integer> keySet = islands.keySet();
+                        Set<Cell> set = null;
+                        for(int key : keySet){
+                            set = islands.get(key);
+                            if(checkCellsNeighbourInSet(set, cell)){
+                                set.add(cell);
+                                if(cell.c-1 >=0 && grid[cell.r][cell.c - 1 ] == '1'){
+                                    set.add(new Cell(cell.r, cell.c-1));
+                                }
+                                if(cell.r-1 >=0 && grid[cell.r-1][cell.c] == '1'){
+                                    set.add(new Cell(cell.r-1, cell.c));
+                                }
+                                isAdded = true;
+                                break;
+                            }
+                        }
+                        
+                    }
+                    if(!isAdded){
+                        Set<Cell> set = new HashSet<>();
+                        set.add(cell);
+                        islands.put(islands.size(), set);
+                        if(cell.c-1 >=0 && grid[cell.r][cell.c - 1 ] == '1'){
+                            set.add(new Cell(cell.r, cell.c-1));
+                        }
+                        if(cell.r-1 >=0 && grid[cell.r-1][cell.c] == '1'){
+                            set.add(new Cell(cell.r-1, cell.c));
+                        }
+                    }
+                }
+            }
+        }
+        return islands.size();
+    }
+    
+    public void temporary(char[][] grid, int r, int c, Set<Cell> partOfIsland){
+        int m = grid.length;
+        int n = grid[0].length;
+        for(int i=c; i<n; i++){
+            int j=r;
+            if(grid[j][i] != '1'){
+                break;
+            }
+            for(; j<m; j++){
+                
+                if(grid[j][i] == '1'){
+                    partOfIsland.add(new Cell(j,i));
+                    for(int k=i+1; k<n; k++){
+                        if(grid[j][k] == '1'){
+                            partOfIsland.add(new Cell(j,k));
+                        }else{
+                            break;
+                        }
+                    }
+                }else{
+                    break;
+                }
+            }
+        }
+    }
+    
+    public boolean checkCellsAvailabilktyInIslands(char[][] grid, Map<Integer, Set<Cell>> islands, Cell cell){
+        
+        Set<Integer> keySet = islands.keySet();
+        for(int key : keySet){
+            Set<Cell> cells = islands.get(key);
+            
+            if(cells.contains(cell)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean checkCellsNeighbourInSet(Set<Cell> set, Cell cell){
+        Iterator<Cell> itrtr = set.iterator();
+        while(itrtr.hasNext()){
+            Cell temp = itrtr.next();
+            if(temp.r == cell.r){
+                if(temp.c == cell.c-1 || temp.c == cell.c+1){
+                    return true;
+                }
+            }
+            if(temp.c == cell.c){
+                if(temp.r == cell.r-1 || temp.r == cell.r+1){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
